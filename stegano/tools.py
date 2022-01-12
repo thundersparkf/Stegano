@@ -30,7 +30,10 @@ import itertools
 from functools import reduce
 from typing import IO, Iterator, List, Tuple, Union
 
+import numpy
 from PIL import Image
+import PIL
+import cv2
 
 ENCODINGS = {"UTF-8": 8, "UTF-32LE": 32}
 
@@ -105,7 +108,7 @@ def base642binary(b64_fname: str) -> bytes:
     return base64.b64decode(b64_fname)
 
 
-def open_image(fname_or_instance: Union[str, IO[bytes]]):
+def open_image(fname_or_instance: Union[str, IO[bytes]]) -> PIL.Image:
     """Opens a Image and returns it.
 
     :param fname_or_instance: Can either be the location of the image as a
@@ -113,5 +116,13 @@ def open_image(fname_or_instance: Union[str, IO[bytes]]):
     """
     if isinstance(fname_or_instance, Image.Image):
         return fname_or_instance
+    elif isinstance(fname_or_instance, numpy.ndarray):
+        color_coverted = cv2.cvtColor(fname_or_instance, cv2.COLOR_BGR2RGB)
+        return Image.fromarray(color_coverted)
+    elif isinstance(fname_or_instance, str):
+        return Image.open(fname_or_instance)
+    else:
+        return Image.open(fname_or_instance)
 
-    return Image.open(fname_or_instance)
+
+
